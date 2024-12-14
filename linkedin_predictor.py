@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 @st.cache_data
 def load_data():
     # Load your dataset here
-    ss = pd.read_csv('your_dataset.csv')
+    ss = pd.read_csv('social_media_usage.csv')
     return ss
 
 # Train model

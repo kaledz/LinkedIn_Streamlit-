@@ -11,26 +11,31 @@ st.write('Enter characteristics to predict LinkedIn usage probability')
 # Load and prepare data
 @st.cache_data
 def load_data():
+    # Import data
     ss = pd.read_csv('social_media_usage.csv')
     
     # Create binary LinkedIn usage indicator
     def clean_sm(x):
         return np.where(x == 1, 1, 0)
     
+    # Create target variable
     ss['sm_li'] = clean_sm(ss['web1h'])
     
-    # Handle missing values
-    ss.loc[ss['income'] > 9, 'income'] = np.nan
-    ss.loc[ss['educ2'] > 8, 'educ2'] = np.nan
-    ss.loc[ss['age'] > 98, 'age'] = np.nan
+    # Select features
+    ss = ss[['sm_li', 'income', 'educ2', 'par', 'marital', 'gender', 'age']]
     
-    # Select and rename columns
-    ss = ss[['sm_li', 'income', 'educ2', 'parent', 'marital', 'gender', 'age']]
+    # Rename columns
     ss = ss.rename(columns={
         'educ2': 'education',
+        'par': 'parent',
         'marital': 'married',
         'gender': 'female'
     })
+    
+    # Handle missing values
+    ss.loc[ss['income'] > 9, 'income'] = np.nan
+    ss.loc[ss['education'] > 8, 'education'] = np.nan
+    ss.loc[ss['age'] > 98, 'age'] = np.nan
     
     # Drop missing values
     ss = ss.dropna()
@@ -38,9 +43,14 @@ def load_data():
 
 # Train model
 def train_model(data):
+    # Create feature set and target vector
     X = data.drop('sm_li', axis=1)
     y = data['sm_li']
+    
+    # Split data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Create and train model
     lr = LogisticRegression(class_weight='balanced', random_state=42)
     lr.fit(X_train, y_train)
     return lr
